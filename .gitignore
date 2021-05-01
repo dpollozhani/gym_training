@@ -1,8 +1,10 @@
 # Project specific
 Firestore config/
 key-to-toml.py
+gym_session_app.py
 .streamlit/
 test.py
+img/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
