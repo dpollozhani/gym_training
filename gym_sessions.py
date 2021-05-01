@@ -12,10 +12,11 @@ class GymSessionsDB:
     def __init__(self, key_dict, project):
         self.__credentials = service_account.Credentials.from_service_account_info(key_dict)
         self.db = firestore.Client(credentials=self.__credentials, project=project)
-        self.collection = self.db.collection('gym_sessions')
+        self.gym_sessions = self.db.collection('gym_sessions')
+        self.gym_users = self.db.collection('gym_users')
 
     def create_document(self, document_data: dict) -> bool:
-        doc = self.collection.document(document_id=str(datetime.now()))
+        doc = self.gym_sessions.document(document_id=str(datetime.now()))
         doc.create(document_data)
         if doc.get().to_dict() == document_data:
             return True
@@ -33,8 +34,12 @@ class GymSessionsDB:
         
         return self.create_document(document_data)
     
-    def get_documents(self) -> List[tuple]:
-        documents = [(doc.id, doc.to_dict()) for doc in self.collection.stream() if doc.id.lower() != 'example']
+    def get_sessions(self) -> List[tuple]:
+        documents = [(doc.id, doc.to_dict()) for doc in self.gym_sessions.stream() if doc.id.lower() != 'example']
+        return documents
+
+    def get_users(self) -> list:
+        documents = [doc.to_dict()['alias'] for doc in self.gym_users.stream()]
         return documents
 
     def parse_dates_pandas(self, df) -> pd.DataFrame:
@@ -46,7 +51,7 @@ class GymSessionsDB:
         return df[['user', 'date', 'exercise', 'set_weights', 'set_reps', 'created']]
         
     def get_exercise_log(self) -> pd.DataFrame:
-        documents = self.get_documents()
+        documents = self.get_sessions()
         ids, records = [t[0] for t in documents], [t[1] for t in documents]
         
         df = pd.DataFrame.from_records(records)
@@ -56,5 +61,9 @@ class GymSessionsDB:
         df = self.fix_column_order_pandas(df)
         return df        
 
+    def validate_user(self, user: str) -> bool:
+        documents = self.get_users()
+        return user in documents
+
     def __repr__(self):
-        return f'GymSessionsDB(db={self.db.project}, collection={self.collection.id})'
+        return f'GymSessionsDB(db={self.db.project}, collections=[{self.gym_sessions.id},{self.gym_users}])'
