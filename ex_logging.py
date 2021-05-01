@@ -9,7 +9,7 @@ def _submit_log(db, user, exercise, date, set_reps, set_weights) -> bool:
 
 def app(db, default_user):
     #Submit username
-    username = st.text_input('Username:', value=default_user, help=f'"{default_user}" per default')
+    username = st.text_input('Username:', value=default_user, help=f'"{default_user}" per default. Submit your personal username; contact your guy if you have none.')
     
     if _is_valid_user(db, username):
         with st.sidebar:
