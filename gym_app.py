@@ -4,7 +4,7 @@ from multiapp import MultiApp
 import ex_logging, ex_performance
 import json
 
-def _connect():
+def _connect() -> GymSessionsDB:
     key_dict = json.loads(st.secrets['textkey'])
     db = GymSessionsDB(key_dict=key_dict, project='panas-onic2001')
     return db

@@ -17,7 +17,7 @@ def app(db, default_user):
             number_of_exercises = st.number_input('#of exercises', min_value=1, max_value=len(GymSessionsDB.exercises), value=1)
             number_of_sets = st.number_input('#of sets per exercise', min_value=1, max_value=5, value=3)
 
-        st.markdown('## Log excercises')
+        st.markdown('## Log exercises')
         cols = st.beta_columns(number_of_exercises)
 
         for i, col in enumerate(cols):
