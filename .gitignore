@@ -1,3 +1,9 @@
+# Project specific
+Firestore config/
+key-to-toml.py
+.streamlit/
+test.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
