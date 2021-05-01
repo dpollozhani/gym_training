@@ -21,10 +21,11 @@ class GymSessionsDB:
             return True
         return False
 
-    def log_exercise(self, exercise: str, date: str, set_reps: List[int], set_weights: List[int]) -> bool:
+    def log_exercise(self, user:str, exercise: str, date: str, set_reps: List[int], set_weights: List[int]) -> bool:
         assert exercise in GymSessionsDB.exercises, f'exercise must be one of {GymSessionsDB.exercises}!'
         
-        document_data = {'exercise': exercise,
+        document_data = {'user': user,
+                    'exercise': exercise,
                     'date': str(date),
                     'set_reps': set_reps,
                     'set_weights': set_weights
@@ -40,7 +41,10 @@ class GymSessionsDB:
         df['created'] = df['created'].apply(lambda d: pd.to_datetime(d))
         df['date'] = df['date'].apply(lambda d: pd.to_datetime(d))
         return df
-    
+
+    def fix_column_order_pandas(self, df) -> pd.DataFrame:
+        return df[['user', 'date', 'exercise', 'set_weights', 'set_reps', 'created']]
+        
     def get_exercise_log(self) -> pd.DataFrame:
         documents = self.get_documents()
         ids, records = [t[0] for t in documents], [t[1] for t in documents]
@@ -49,6 +53,7 @@ class GymSessionsDB:
         df['created'] = ids
         df = self.parse_dates_pandas(df)
         df = df.sort_values(by='date', ascending=False)
+        df = self.fix_column_order_pandas(df)
         return df        
 
     def __repr__(self):
