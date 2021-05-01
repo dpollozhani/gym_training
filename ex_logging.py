@@ -18,6 +18,7 @@ def app(db, default_user):
             number_of_sets = st.number_input('#of sets per exercise', min_value=1, max_value=5, value=3)
 
         st.markdown('## Log exercises')
+        st.caption('Change settings in sidebar (you might have to tilt your mobile device).')
         cols = st.beta_columns(number_of_exercises)
 
         for i, col in enumerate(cols):
