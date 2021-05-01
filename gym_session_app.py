@@ -44,8 +44,6 @@ with sidebar:
 
 if password.lower() == 'only full weight':
 
-    username = st.text_input('Username:', value=default_user, help=f'"{default_user}" per default')
-
     #Set up database connection
     db = _connect()
 
@@ -54,6 +52,8 @@ if password.lower() == 'only full weight':
     st.title('Gym session logging and followup')
     st.subheader('Weightlifting with barbells')
     st.caption('dpollozhani | pana$-onic2001')
+
+    username = st.text_input('Username:', value=default_user, help=f'"{default_user}" per default')
 
     #Sidebar
     with sidebar:
