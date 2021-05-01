@@ -1,0 +1,55 @@
+from google.oauth2 import service_account
+from google.cloud import firestore
+import pandas as pd
+from datetime import datetime
+from typing import List
+
+
+class GymSessionsDB:
+
+    exercises = ['Squat', 'Deadlift', 'Bench press', 'Overhead press']
+
+    def __init__(self, key_dict, project):
+        self.__credentials = service_account.Credentials.from_service_account_info(key_dict)
+        self.db = firestore.Client(credentials=self.__credentials, project=project)
+        self.collection = self.db.collection('gym_sessions')
+
+    def create_document(self, document_data: dict) -> bool:
+        doc = self.collection.document(document_id=str(datetime.now()))
+        doc.create(document_data)
+        if doc.get().to_dict() == document_data:
+            return True
+        return False
+
+    def log_exercise(self, exercise: str, date: str, set_reps: List[int], set_weights: List[int]) -> bool:
+        assert exercise in GymSessionsDB.exercises, f'exercise must be one of {GymSessionsDB.exercises}!'
+        
+        document_data = {'exercise': exercise,
+                    'date': str(date),
+                    'set_reps': set_reps,
+                    'set_weights': set_weights
+            }
+        
+        return self.create_document(document_data)
+    
+    def get_documents(self) -> List[tuple]:
+        documents = [(doc.id, doc.to_dict()) for doc in self.collection.stream() if doc.id.lower() != 'example']
+        return documents
+
+    def parse_dates_pandas(self, df) -> pd.DataFrame:
+        df['created'] = df['created'].apply(lambda d: pd.to_datetime(d))
+        df['date'] = df['date'].apply(lambda d: pd.to_datetime(d))
+        return df
+    
+    def get_exercise_log(self) -> pd.DataFrame:
+        documents = self.get_documents()
+        ids, records = [t[0] for t in documents], [t[1] for t in documents]
+        
+        df = pd.DataFrame.from_records(records)
+        df['created'] = ids
+        df = self.parse_dates_pandas(df)
+        df = df.sort_values(by='date', ascending=False)
+        return df        
+
+    def __repr__(self):
+        return f'GymSessionsDB(db={self.db.project}, collection={self.collection.id})'
