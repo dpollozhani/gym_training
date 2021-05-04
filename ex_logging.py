@@ -1,5 +1,6 @@
 import streamlit as st
 from gym_sessions import GymSessionsDB
+from ex_performance import _get_log
 
 def _is_valid_user(db, user):
     return db.validate_user(user)
@@ -39,5 +40,12 @@ def app(db, default_user):
 
                 if submit:
                     _submit_log(db, username, exercise, date, set_reps, set_weights)
-    else:
+                    st.balloons()
+                    log = _get_log(db)
+                    last_log = log[log['user'] == username].iloc[0,:]
+                    last_exercise, last_date, last_logged = last_log['exercise'], last_log['date'], last_log['created']
+                    last_date_formatted = str(last_date).split(' ')[0]
+                    st.write(f'Your last logged exercise: *{last_exercise}*, **{last_date_formatted}** (logged at **{last_logged}**.')
+                    
+    else:           
         st.error('Username is not recognized. If you want to get in, just tell us, dude :wink:')
