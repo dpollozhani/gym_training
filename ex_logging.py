@@ -40,7 +40,7 @@ def app(db, default_user):
 
                 if submit:
                     _submit_log(db, username, exercise, date, set_reps, set_weights)
-                    st.balloons()
+                    st.write('Success!')
                     log = _get_log(db)
                     last_log = log[log['user'] == username].iloc[0,:]
                     last_exercise, last_date, last_logged = last_log['exercise'], last_log['date'], last_log['created']
