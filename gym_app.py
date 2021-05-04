@@ -17,6 +17,9 @@ app = MultiApp()
 app.add_app("Logging", ex_logging.app, db=db, default_user=default_user)
 app.add_app("Performance", ex_performance.app, db=db, default_user=default_user)
 
+#Config
+st.set_page_config(page_title='Gym Sessions', layout='wide')
+
 #Header
 st.title('Gym session logging and performance followup')
 st.subheader('*Weightlifting with barbells*')
