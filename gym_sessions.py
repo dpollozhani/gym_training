@@ -51,16 +51,24 @@ class GymSessionsDB:
         df['date'] = df['date'].apply(lambda d: pd.to_datetime(d))
         return df
 
+    def weight_reps(self, df) -> pd.DataFrame:
+        return df.apply(lambda x: zip_sort_cols(x.set_weights, x.set_reps), axis=1)
+
     def add_best_set(self, df) -> pd.DataFrame:
-        #df = literal_cols(df, ['set_weights', 'set_reps'])
-        df['best_set_tmp'] = df.apply(lambda x: zip_sort_cols(x.set_weights, x.set_reps), axis=1)
-        df['best_set_weight'] = df['best_set_tmp'].apply(lambda x: x[0][0])
-        df['best_set_reps'] = df['best_set_tmp'].apply(lambda x: x[0][1])
-        df.drop(columns=['best_set_tmp'], inplace=True)
+        df['temp'] = self.weight_reps(df)
+        df['best_set_weight'] = df['temp'].apply(lambda x: x[0][0])
+        df['best_set_reps'] = df['temp'].apply(lambda x: x[0][1])
+        df.drop(columns=['temp'], inplace=True)
+        return df
+    
+    def add_total_weight(self, df) -> pd.DataFrame:
+        df['temp'] = self.weight_reps(df)
+        df['total_weight_lifted'] = df['temp'].apply(lambda x: sum([e[0]*e[1] for e in x]))
+        df.drop(columns=['temp'], inplace=True)
         return df
 
     def fix_column_order(self, df) -> pd.DataFrame:
-        return df[['user', 'date', 'exercise', 'set_weights', 'set_reps', 'best_set_weight', 'best_set_reps', 'created']]
+        return df[['user', 'date', 'exercise', 'set_weights', 'set_reps', 'best_set_weight', 'best_set_reps', 'total_weight_lifted', 'created']]
         
     def get_exercise_log(self) -> pd.DataFrame:
         documents = self.get_sessions()
@@ -70,6 +78,7 @@ class GymSessionsDB:
         df['created'] = ids
         df = self.parse_dates(df)
         df = self.add_best_set(df)
+        df = self.add_total_weight(df)
         df = df.sort_values(by='date', ascending=False)
         df = self.fix_column_order(df)
         return df        
