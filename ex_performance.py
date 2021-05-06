@@ -65,10 +65,9 @@ def app(db, default_user):
             alt.Y('best_set_weight', scale=alt.Scale(zero=False, padding=1)),
             color='exercise',
             size='best_set_reps',
-            tooltip=['exercise', 'best_set_weight', 'best_set_reps', 'date'],
+            tooltip=['exercise', 'best_set_weight', 'best_set_reps', 'total_weight_lifted', 'date'],
             ).properties(height=500).interactive()
         
-
         st.altair_chart(chart, use_container_width=True)
 
     with st.beta_expander('Show all data'):
