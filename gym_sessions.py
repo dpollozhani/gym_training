@@ -4,6 +4,10 @@ import pandas as pd
 from datetime import datetime
 from typing import List
 
+def zip_sort_cols(*cols):
+    zipped = list(zip(*cols))
+    zipped_sorted = sorted(zipped, key=lambda x: (x[0], x[1]), reverse=True)
+    return zipped_sorted
 
 class GymSessionsDB:
 
@@ -42,13 +46,21 @@ class GymSessionsDB:
         documents = [doc.to_dict()['alias'] for doc in self.gym_users.stream()]
         return documents
 
-    def parse_dates_pandas(self, df) -> pd.DataFrame:
+    def parse_dates(self, df) -> pd.DataFrame:
         df['created'] = df['created'].apply(lambda d: pd.to_datetime(d))
         df['date'] = df['date'].apply(lambda d: pd.to_datetime(d))
         return df
 
-    def fix_column_order_pandas(self, df) -> pd.DataFrame:
-        return df[['user', 'date', 'exercise', 'set_weights', 'set_reps', 'created']]
+    def add_best_set(self, df) -> pd.DataFrame:
+        #df = literal_cols(df, ['set_weights', 'set_reps'])
+        df['best_set_tmp'] = df.apply(lambda x: zip_sort_cols(x.set_weights, x.set_reps), axis=1)
+        df['best_set_weight'] = df['best_set_tmp'].apply(lambda x: x[0][0])
+        df['best_set_reps'] = df['best_set_tmp'].apply(lambda x: x[0][1])
+        df.drop(columns=['best_set_tmp'], inplace=True)
+        return df
+
+    def fix_column_order(self, df) -> pd.DataFrame:
+        return df[['user', 'date', 'exercise', 'set_weights', 'set_reps', 'best_set_weight', 'best_set_reps', 'created']]
         
     def get_exercise_log(self) -> pd.DataFrame:
         documents = self.get_sessions()
@@ -56,9 +68,10 @@ class GymSessionsDB:
         
         df = pd.DataFrame.from_records(records)
         df['created'] = ids
-        df = self.parse_dates_pandas(df)
+        df = self.parse_dates(df)
+        df = self.add_best_set(df)
         df = df.sort_values(by='date', ascending=False)
-        df = self.fix_column_order_pandas(df)
+        df = self.fix_column_order(df)
         return df        
 
     def validate_user(self, user: str) -> bool:
