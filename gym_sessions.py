@@ -79,7 +79,7 @@ class GymSessionsDB:
         df = self.parse_dates(df)
         df = self.add_best_set(df)
         df = self.add_total_weight(df)
-        df = df.sort_values(by='date', ascending=False)
+        df = df.sort_values(by='created', ascending=False)
         df = self.fix_column_order(df)
         return df        
 
