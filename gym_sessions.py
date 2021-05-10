@@ -80,7 +80,7 @@ class GymSessionsDB:
         df = self.add_best_set(df)
         df = self.add_total_weight(df)
         df = self.fix_column_order(df)
-        df = df.sort_values(by='created', ascending=False).reset_index()
+        df = df.sort_values(by='created', ascending=False).reset_index(drop=True)
         return df        
 
     def validate_user(self, user: str) -> bool:
