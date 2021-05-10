@@ -61,7 +61,7 @@ def app(db, default_user):
 
         #Chart
         chart = alt.Chart(log).mark_circle().encode(
-            alt.X('date', scale=alt.Scale(clamp=False, zero=False)),
+            alt.X('date:T', scale=alt.Scale(clamp=True, zero=False)),
             alt.Y('best_set_weight', scale=alt.Scale(zero=False, padding=1)),
             color='exercise',
             size='best_set_reps',
