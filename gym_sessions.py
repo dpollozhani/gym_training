@@ -4,9 +4,9 @@ import pandas as pd
 from datetime import datetime
 from typing import List
 
-def zip_sort_cols(*cols):
+def zip_sort_cols(*cols, desc=True):
     zipped = list(zip(*cols))
-    zipped_sorted = sorted(zipped, key=lambda x: (x[0], x[1]), reverse=True)
+    zipped_sorted = sorted(zipped, key=lambda x: (x[0], x[1]), reverse=desc)
     return zipped_sorted
 
 class GymSessionsDB:
@@ -51,8 +51,8 @@ class GymSessionsDB:
         df['date'] = df['date'].apply(lambda d: pd.to_datetime(d))
         return df
 
-    def weight_reps(self, df) -> pd.DataFrame:
-        return df.apply(lambda x: zip_sort_cols(x.set_weights, x.set_reps), axis=1)
+    def weight_reps(self, df, desc=True) -> pd.DataFrame:
+        return df.apply(lambda x: zip_sort_cols(x.set_weights, x.set_reps, desc=desc), axis=1)
 
     def add_best_set(self, df) -> pd.DataFrame:
         df['temp'] = self.weight_reps(df)
@@ -61,6 +61,13 @@ class GymSessionsDB:
         df.drop(columns=['temp'], inplace=True)
         return df
     
+    def add_worst_set(self, df) -> pd.DataFrame:
+        df['temp'] = self.weight_reps(df, desc=False)
+        df['worst_set_weight'] = df['temp'].apply(lambda x: x[0][0])
+        df['worst_set_reps'] = df['temp'].apply(lambda x: x[0][1])
+        df.drop(columns=['temp'], inplace=True)
+        return df
+
     def add_total_weight(self, df) -> pd.DataFrame:
         df['temp'] = self.weight_reps(df)
         df['total_weight_lifted'] = df['temp'].apply(lambda x: sum([e[0]*e[1] for e in x]))
@@ -68,7 +75,7 @@ class GymSessionsDB:
         return df
 
     def fix_column_order(self, df) -> pd.DataFrame:
-        return df[['user', 'date', 'exercise', 'set_weights', 'set_reps', 'best_set_weight', 'best_set_reps', 'total_weight_lifted', 'created']]
+        return df[['user', 'date', 'exercise', 'set_weights', 'set_reps', 'best_set_weight', 'best_set_reps', 'worst_set_weight', 'worst_set_reps', 'total_weight_lifted', 'created']]
         
     def get_exercise_log(self) -> pd.DataFrame:
         documents = self.get_sessions()
@@ -78,6 +85,7 @@ class GymSessionsDB:
         df['created'] = ids
         df = self.parse_dates(df)
         df = self.add_best_set(df)
+        df = self.add_worst_set(df)
         df = self.add_total_weight(df)
         df = self.fix_column_order(df)
         df = df.sort_values(by='created', ascending=False).reset_index(drop=True)
