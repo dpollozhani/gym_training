@@ -44,9 +44,10 @@ def app(db, default_user):
     
     with st.beta_container():
         #Chart filters
-        selection_col1, selection_col2 = st.beta_columns((1,4))
+        selection_col1, selection_col2, selection_col3 = st.beta_columns((1,3,1))
         user_select = selection_col1.selectbox('User', options=available_users)
         exercise_multiselect = selection_col2.multiselect('Exercises', options=available_exercises, default=available_exercises)
+        yaxis_and_size = selection_col3.radio(label='Best/worst', options=['Best', 'Worst'], index=1)
 
         date_range = st.slider(
             'Date range', 
@@ -60,12 +61,15 @@ def app(db, default_user):
         log['date'] = log['date'].dt.date
 
         #Chart
+        y_axis = 'worst_set_weight' if yaxis_and_size == 'Worst' else 'best_set_weight'
+        bubble_size = 'worst_set_reps' if yaxis_and_size == 'Worst' else 'best_set_repts'
+
         chart = alt.Chart(log).mark_circle().encode(
             alt.X('date:T', scale=alt.Scale(clamp=True, zero=False)),
-            alt.Y('best_set_weight', scale=alt.Scale(zero=False, padding=1)),
+            alt.Y(y_axis, scale=alt.Scale(zero=False, padding=1)),
             color='exercise',
-            size='best_set_reps',
-            tooltip=['exercise', 'best_set_weight', 'best_set_reps', 'total_weight_lifted', 'date'],
+            size=bubble_size,
+            tooltip=['exercise', y_axis, bubble_size, 'total_weight_lifted', 'date'],
             ).properties(height=500).interactive()
         
         st.altair_chart(chart, use_container_width=True)
