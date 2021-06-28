@@ -62,7 +62,7 @@ def app(db, default_user):
 
         #Chart
         y_axis = 'worst_set_weight' if yaxis_and_size == 'Worst' else 'best_set_weight'
-        bubble_size = 'worst_set_reps' if yaxis_and_size == 'Worst' else 'best_set_repts'
+        bubble_size = 'worst_set_reps' if yaxis_and_size == 'Worst' else 'best_set_reps'
 
         chart = alt.Chart(log).mark_circle().encode(
             alt.X('date:T', scale=alt.Scale(clamp=True, zero=False)),
