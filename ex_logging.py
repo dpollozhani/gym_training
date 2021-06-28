@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 from gym_sessions import GymSessionsDB
 from ex_performance import _get_log
 
@@ -7,6 +8,15 @@ def _is_valid_user(db, user):
 
 def _submit_log(db, user, exercise, date, set_reps, set_weights) -> bool:
     return db.log_exercise(user, exercise, date, set_reps, set_weights)
+
+#@st.cache
+def _get_latest_weights(log):
+    log = log[['created','exercise','worst_set_weight']]
+    latest_date = log.groupby('exercise')['created'].max().reset_index()
+    latest_per_exercise = pd.merge(latest_date, log, on=['exercise','created'], how='inner')
+    latest_weights = dict(zip(latest_per_exercise['exercise'].values, latest_per_exercise['worst_set_weight'].values))
+    return latest_weights
+
 
 def app(db, default_user):
     #Submit username
@@ -24,15 +34,16 @@ def app(db, default_user):
 
         for i, col in enumerate(cols):
             with col:
+                exercise = st.selectbox('Exercise', options=GymSessionsDB.exercises, key=f'exercise_input{i}')
+                latest_weights = _get_latest_weights(_get_log(db))
                 with st.form(key=f'exercise_log_{i}'):
                     date = st.date_input('Date', help='Select the date of the exercise')
-                    exercise = st.selectbox('Exercise', options=GymSessionsDB.exercises)
                     set_reps, set_weights = [], []
-                    st.write('-------')
                     for j in range(number_of_sets):
                         st.write(f'Set {j+1}')
                         r = st.number_input(f'Reps', min_value=1, max_value=15, value=5, key=f'set_{j}_r')
-                        w = st.number_input(f'Weight', min_value=30.0, max_value=150.0, value=50.0, step=2.5, key=f'set_{j}_w')
+                        min_w, max_w, def_w = latest_weights[exercise]-20, latest_weights[exercise]+20, latest_weights[exercise]
+                        w = st.number_input(f'Weight', min_value=min_w, max_value=max_w, value=def_w, step=2.5, key=f'set_{j}_w')
                         set_reps.append(r)
                         set_weights.append(w)
                         st.write('-------')
