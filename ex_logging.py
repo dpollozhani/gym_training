@@ -43,7 +43,7 @@ def app(db, default_user):
                     for j in range(number_of_sets):
                         st.write(f'Set {j+1}')
                         r = st.number_input(f'Reps', min_value=1, max_value=15, value=5, key=f'set_{j}_r')
-                        min_w, max_w, def_w = max(10,latest_weights[exercise]-50, latest_weights[exercise]+100, latest_weights[exercise]
+                        min_w, max_w, def_w = max(10,latest_weights[exercise]-50), latest_weights[exercise]+100, latest_weights[exercise]
                         w = st.number_input(f'Weight', min_value=min_w, max_value=max_w, value=def_w, step=2.5, key=f'set_{j}_w')
                         set_reps.append(r)
                         set_weights.append(w)
