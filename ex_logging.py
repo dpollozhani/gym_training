@@ -11,13 +11,12 @@ def _submit_log(db, user, exercise, date, set_reps, set_weights, comment) -> boo
 
 #@st.cache
 def _get_latest_weights(log, user):
-    latest_weights = 40
     if user in log['user'].values:
         log = log[log['user']==user]
-        log = log[['created','exercise','worst_set_weight']]
-        latest_date = log.groupby('exercise')['created'].max().reset_index()
-        latest_per_exercise = pd.merge(latest_date, log, on=['exercise','created'], how='inner')
-        latest_weights = dict(zip(latest_per_exercise['exercise'].values, latest_per_exercise['worst_set_weight'].values))
+    log = log[['created','exercise','worst_set_weight']]
+    latest_date = log.groupby('exercise')['created'].max().reset_index()
+    latest_per_exercise = pd.merge(latest_date, log, on=['exercise','created'], how='inner')
+    latest_weights = dict(zip(latest_per_exercise['exercise'].values, latest_per_exercise['worst_set_weight'].values))
     return latest_weights
 
 
@@ -34,7 +33,6 @@ def app(db, default_user):
         st.markdown('## Log exercises')
         st.caption('Change settings in sidebar menu (you might have to tilt your mobile device).')
         cols = st.beta_columns(number_of_exercises)
-        comment = ''
 
         for i, col in enumerate(cols):
             with col:
@@ -46,7 +44,7 @@ def app(db, default_user):
                     for j in range(number_of_sets):
                         st.write(f'Set {j+1}')
                         r = st.number_input(f'Reps', min_value=1, max_value=15, value=5, key=f'set_{j}_r')
-                        min_w, max_w, def_w = max(10,latest_weights[exercise]-50), latest_weights[exercise]+100, latest_weights[exercise]
+                        min_w, max_w, def_w = max(10.0,latest_weights[exercise]-50), latest_weights[exercise]+100, latest_weights[exercise]
                         w = st.number_input(f'Weight', min_value=min_w, max_value=max_w, value=def_w, step=2.5, key=f'set_{j}_w')
                         set_reps.append(r)
                         set_weights.append(w)
