@@ -3,23 +3,18 @@ import pandas as pd
 from gym_sessions import GymSessionsDB
 from ex_performance import _get_log
 
-def _is_valid_user(db, user):
-    return db.validate_user(user)
-
 def _submit_log(db, user, exercise, date, set_reps, set_weights, comment) -> bool:
     return db.log_exercise(user, exercise, date, set_reps, set_weights, comment)
 
-#@st.cache
-def _get_latest_weights(log, excercise, user):
-    if excercise in log['exercise'].values:
-        if user in log['user'].values:
-            log = log[log['user']==user]
+def _get_latest_weights(log, exercise, user):
+    if exercise in log['exercise'].values and user in log['user'].values:
+        log = log[(log['user']==user) & (log['exercise']==exercise)]
         log = log[['created','exercise','worst_set_weight']]
         latest_date = log.groupby('exercise')['created'].max().reset_index()
         latest_per_exercise = pd.merge(latest_date, log, on=['exercise','created'], how='inner')
         latest_weights = dict(zip(latest_per_exercise['exercise'].values, latest_per_exercise['worst_set_weight'].values))
     else:
-        latest_weights = {excercise: 40.0}
+        latest_weights = {exercise: 40.0}
     return latest_weights
 
 
