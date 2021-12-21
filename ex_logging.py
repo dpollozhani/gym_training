@@ -13,7 +13,7 @@ def _submit_log(db, user, exercise, date, set_reps, set_weights, comment) -> boo
 def _get_latest_weights(log, user):
     latest_weights = 40
     if user in log['user'].values:
-        log = log[log['user']==user]]
+        log = log[log['user']==user]
         log = log[['created','exercise','worst_set_weight']]
         latest_date = log.groupby('exercise')['created'].max().reset_index()
         latest_per_exercise = pd.merge(latest_date, log, on=['exercise','created'], how='inner')
