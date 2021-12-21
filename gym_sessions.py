@@ -76,8 +76,11 @@ class GymSessionsDB:
         return df
 
     def fix_column_order(self, df) -> pd.DataFrame:
-        return df[['user', 'date', 'exercise', 'set_weights', 'set_reps', 'best_set_weight', 'best_set_reps', 'worst_set_weight', 'worst_set_reps', 'total_weight_lifted', 'created']]
-        
+        base_cols = ['user', 'date', 'exercise', 'set_weights', 'set_reps', 'best_set_weight', 'best_set_reps', 'worst_set_weight', 'worst_set_reps', 'total_weight_lifted', 'created']
+        if 'comment' in df.columns:
+            return df[base_cols+['comment']]
+        return df[base_cols]
+    
     def get_exercise_log(self) -> pd.DataFrame:
         documents = self.get_sessions()
         ids, records = [t[0] for t in documents], [t[1] for t in documents]
