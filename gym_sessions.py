@@ -26,14 +26,15 @@ class GymSessionsDB:
             return True
         return False
 
-    def log_exercise(self, user:str, exercise: str, date: str, set_reps: List[int], set_weights: List[int]) -> bool:
+    def log_exercise(self, user:str, exercise: str, date: str, set_reps: List[int], set_weights: List[int], comment: str='') -> bool:
         assert exercise in GymSessionsDB.exercises, f'exercise must be one of {GymSessionsDB.exercises}!'
         
         document_data = {'user': user,
                     'exercise': exercise,
                     'date': str(date),
                     'set_reps': set_reps,
-                    'set_weights': set_weights
+                    'set_weights': set_weights,
+                    'comment': comment
             }
         
         return self.create_document(document_data)

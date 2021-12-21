@@ -20,9 +20,9 @@ def _get_latest_weights(log):
 
 def app(db, default_user):
     #Submit username
-    username = st.text_input('Username:', value=default_user, help=f'"{default_user}" per default. Submit your personal username; contact your guy if you have none.')
-    
-    if _is_valid_user(db, username):
+    username = st.selectbox('User', [' ']+db.get_users())
+
+    if username != ' ':
         with st.sidebar:
             st.subheader('Logging settings')
             number_of_exercises = st.number_input('#of exercises', min_value=1, max_value=len(GymSessionsDB.exercises), value=1)
@@ -58,5 +58,5 @@ def app(db, default_user):
                     last_date_formatted = str(last_date).split(' ')[0]
                     st.write(f'Your last logged exercise: *{last_exercise}*, **{last_date_formatted}** (logged at **{last_logged}**.')
                     
-    else:           
-        st.error('Username is not recognized. If you want to get in, just tell us, dude :wink:')
+    else:
+        st.error('Please select your username (&#8593;) before continuing logging you life\'s greatest achievements :wink:')           
