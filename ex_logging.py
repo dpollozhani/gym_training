@@ -6,8 +6,8 @@ from ex_performance import _get_log
 def _is_valid_user(db, user):
     return db.validate_user(user)
 
-def _submit_log(db, user, exercise, date, set_reps, set_weights) -> bool:
-    return db.log_exercise(user, exercise, date, set_reps, set_weights)
+def _submit_log(db, user, exercise, date, set_reps, set_weights, comment) -> bool:
+    return db.log_exercise(user, exercise, date, set_reps, set_weights, comment)
 
 #@st.cache
 def _get_latest_weights(log):
@@ -31,6 +31,7 @@ def app(db, default_user):
         st.markdown('## Log exercises')
         st.caption('Change settings in sidebar menu (you might have to tilt your mobile device).')
         cols = st.beta_columns(number_of_exercises)
+        comment = ''
 
         for i, col in enumerate(cols):
             with col:
@@ -47,10 +48,12 @@ def app(db, default_user):
                         set_reps.append(r)
                         set_weights.append(w)
                         st.write('-------')
+                    st.write('Comment')
+                    comment = st.text_input('Input here')
                     submit = st.form_submit_button('Log')
 
                 if submit:
-                    _submit_log(db, username, exercise, date, set_reps, set_weights)
+                    _submit_log(db, username, exercise, date, set_reps, set_weights, comment)
                     st.write('Success!')
                     log = _get_log(db)
                     last_log = log[log['user'] == username].iloc[0,:]
