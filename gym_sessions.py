@@ -11,7 +11,7 @@ def zip_sort_cols(*cols, desc=True):
 
 class GymSessionsDB:
 
-    exercises = ['Squat', 'Deadlift', 'Bench press', 'Overhead press']
+    exercises = ['Squat', 'Deadlift', 'Bench press', 'Overhead press', 'Barbell row', 'Power clean']
 
     def __init__(self, key_dict, project):
         self.__credentials = service_account.Credentials.from_service_account_info(key_dict)
