@@ -7,8 +7,8 @@ def _submit_log(db, user, exercise, date, set_reps, set_weights, comment) -> boo
     return db.log_exercise(user, exercise, date, set_reps, set_weights, comment)
 
 def _get_latest_weights(log, exercise, user):
-    if exercise in log['exercise'].values and user in log['user'].values:
-        log = log[(log['user']==user) & (log['exercise']==exercise)]
+    log = log[(log['user']==user) & (log['exercise']==exercise)]
+    if len(log) > 0: 
         log = log[['created','exercise','worst_set_weight']]
         latest_date = log.groupby('exercise')['created'].max().reset_index()
         latest_per_exercise = pd.merge(latest_date, log, on=['exercise','created'], how='inner')
@@ -35,7 +35,7 @@ def app(db, default_user):
         for i, col in enumerate(cols):
             with col:
                 exercise = st.selectbox('Exercise', options=GymSessionsDB.exercises, key=f'exercise_input{i}')
-                latest_weights = _get_latest_weights(_get_log(db), exercise, username) 
+                latest_weights = _get_latest_weights(_get_log(db), exercise, username)
                 with st.form(key=f'exercise_log_{i}'):
                     date = st.date_input('Date', help='Select the date of the exercise')
                     set_reps, set_weights = [], []
