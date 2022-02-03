@@ -11,13 +11,12 @@ def zip_sort_cols(*cols, desc=True):
 
 class GymSessionsDB:
 
-    exercises = ['Squat', 'Deadlift', 'Bench press', 'Overhead press', 'Barbell row', 'Power clean']
-
     def __init__(self, key_dict, project):
         self.__credentials = service_account.Credentials.from_service_account_info(key_dict)
         self.db = firestore.Client(credentials=self.__credentials, project=project)
         self.gym_sessions = self.db.collection('gym_sessions')
         self.gym_users = self.db.collection('gym_users')
+        self.gym_exercises = self.db.collection('gym_exercises')
 
     def create_document(self, document_data: dict) -> bool:
         doc = self.gym_sessions.document(document_id=str(datetime.now()))
@@ -27,7 +26,7 @@ class GymSessionsDB:
         return False
 
     def log_exercise(self, user:str, exercise: str, date: str, set_reps: List[int], set_weights: List[int], comment: str='') -> bool:
-        assert exercise in GymSessionsDB.exercises, f'exercise must be one of {GymSessionsDB.exercises}!'
+        assert exercise in self.get_exercises(), f'exercise must be one of {self.get_exercises()}!'
         
         document_data = {'user': user,
                     'exercise': exercise,
@@ -45,6 +44,10 @@ class GymSessionsDB:
 
     def get_users(self) -> list:
         documents = [doc.to_dict()['alias'] for doc in self.gym_users.stream()]
+        return documents
+
+    def get_exercises(self) -> dict:
+        documents = {doc.id: doc.to_dict()['exercises'] for doc in self.gym_exercises.stream()}
         return documents
 
     def parse_dates(self, df) -> pd.DataFrame:
