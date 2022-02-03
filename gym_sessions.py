@@ -26,8 +26,6 @@ class GymSessionsDB:
         return False
 
     def log_exercise(self, user:str, exercise: str, date: str, set_reps: List[int], set_weights: List[int], comment: str='') -> bool:
-        assert exercise in self.get_exercises(), f'exercise must be one of {self.get_exercises()}!'
-        
         document_data = {'user': user,
                     'exercise': exercise,
                     'date': str(date),
