@@ -17,24 +17,28 @@ def _get_latest_weights(log, exercise, user):
         latest_weights = {exercise: 40.0}
     return latest_weights
 
-
 def app(db, default_user):
     #Submit username
     username = st.selectbox('User', [' ']+db.get_users())
+    
+    _exercises = db.get_exercises()
 
     if username != ' ':
         with st.sidebar:
             st.subheader('Logging settings')
-            number_of_exercises = st.number_input('#of exercises', min_value=1, max_value=len(GymSessionsDB.exercises), value=1)
+            number_of_exercises = st.number_input('#of exercises', min_value=1, max_value=len(_exercises), value=1)
             number_of_sets = st.number_input('#of sets per exercise', min_value=1, max_value=5, value=3)
 
         st.markdown('## Log exercises')
         st.caption('Change settings in sidebar menu (you might have to tilt your mobile device).')
-        cols = st.beta_columns(number_of_exercises)
 
+
+        cols = st.beta_columns(number_of_exercises)
         for i, col in enumerate(cols):
             with col:
-                exercise = st.selectbox('Exercise', options=GymSessionsDB.exercises, key=f'exercise_input{i}')
+     
+                exercise_type = st.selectbox('Exercise type', options=list(_exercises.keys()), key=f'exercise_type{i}')
+                exercise = st.selectbox('Exercise', options=_exercises[exercise_type], key=f'exercise{i}')
                 latest_weights = _get_latest_weights(_get_log(db), exercise, username)
                 with st.form(key=f'exercise_log_{i}'):
                     date = st.date_input('Date', help='Select the date of the exercise')
@@ -61,4 +65,5 @@ def app(db, default_user):
                     st.write(f'Your last logged exercise: *{last_exercise}*, **{last_date_formatted}** (logged at **{last_logged}**.')
                     
     else:
-        st.error('Please select your username (&#8593;) before continuing logging you life\'s greatest achievements :wink:')           
+        st.error('Please select your username (&#8593;) before continuing logging you life\'s greatest achievements :wink:')
+        
