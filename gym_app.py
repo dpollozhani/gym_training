@@ -22,7 +22,7 @@ st.set_page_config(page_title='Gym Sessions', layout='wide')
 
 #Header
 st.title('Gym session logging and performance followup')
-st.subheader('*Weightlifting with barbells*')
+st.subheader('*Weightlifting with barbells and more*')
 st.caption('dpollozhani | pana$-onic2001')
 
 app.run()
